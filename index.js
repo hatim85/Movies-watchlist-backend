@@ -17,7 +17,14 @@ const app=express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+
+const corsOptions = {
+    origin: 'https://movies-watchlist-frontend.vercel.app', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 
 app.use('/api/auth',authRoutes);
 app.use('/api/movies',moviesRoutes);
