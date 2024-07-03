@@ -1,13 +1,12 @@
 import User from '../models/authModel.js'
 import bcryptjs from 'bcryptjs';
-import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken'
 
-export const signup = async (req, res, next) => {
+export const signup = async (req, res) => {
     const { username, email, password,phone } = req.body;
 
     if (!username || !email || !password || !phone || username === '' || email === '' || password === '' || phone==='') {
-        next(errorHandler(400, 'All fields are required'));
+        res.status(400).json("All fields are required")
     }
 
     const hashedPassword = bcryptjs.hashSync(password, 10);
@@ -39,26 +38,26 @@ export const signup = async (req, res, next) => {
             }
         });
     } catch (error) {
-        next(error);
+        res.json(error.message)
     }
 }
 
-export const signin = async (req, res, next) => {
+export const signin = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password || email === "" || password === "") {
-        return next(errorHandler(400, 'All fields are required'));
+        return res.status(400).json('All fields are required')
     }
 
     try {
         const validUser = await User.findOne({ email });
         if (!validUser) {
-            return next(errorHandler('User not found'));
+            return res.json('User not found')
         }
 
         const validPassword = bcryptjs.compareSync(password, validUser.password);
         if (!validPassword) {
-            return next(errorHandler(400, 'Invalid password'));
+            return res.status(400).json('Invalid password')
         }   
 
         const token = jwt.sign(
@@ -77,17 +76,17 @@ export const signin = async (req, res, next) => {
             .json(rest);
     }
     catch (error) {
-        next(error);
+        res.json(error.message)
     }
 };
 
-export const signout=(req,res,next)=>{
+export const signout=(req,res)=>{
     try {
         res
             .clearCookie('access_token')
             .status(200)
             .json('Signout successfull');
     } catch (error) {
-        next(error);
+        res.json(error.message)
     }
 }
